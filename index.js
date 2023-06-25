@@ -1,6 +1,7 @@
 const path = require('node:path');
 const os = require('node:os');
 const fs = require('node:fs');
+const crypto = require('node:crypto');
 const { stdin, stdout, argv } = process;
 
 let currentPath = path.resolve(os.homedir());
@@ -40,6 +41,9 @@ function startManager() {
                 break;
             case 'os':
                 getOSInfo(dataArr[1].trim());
+                break;
+            case 'hash':
+                getHash(dataArr[1].trim());
                 break;
             case '.exit':
                 process.exit();
@@ -224,6 +228,14 @@ function getOSInfo(param) {
         default: stdout.write('Invalid input\n\n');
     }
     stdout.write(`You are currently in ${currentPath}\n\n`);
+}
+
+function getHash(filePath) {
+    const curFilePath = path.resolve(currentPath, filePath);
+    const readableStream = fs.createReadStream(curFilePath);
+    const hash = crypto.createHash('sha256');
+    readableStream.on('data', data => { hash.update(data) });
+    readableStream.on('end', () => { stdout.write(`${hash.digest('hex')}\n\n`) });
 }
 
 startManager()
