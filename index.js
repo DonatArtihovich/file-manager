@@ -35,6 +35,9 @@ function startManager() {
             case 'mv':
                 moveFile(dataArr[1].trim(), dataArr[2].trim());
                 break;
+            case 'rm':
+                deleteFile(dataArr[1].trim());
+                break;
             case '.exit':
                 process.exit();
             default: stdout.write('Invalid input\n\n');
@@ -184,7 +187,19 @@ function moveFile(oldPath, newPath) {
         })
 }
 
+function deleteFile(filePath) {
+    const deletingFilePath = path.resolve(currentPath, filePath);
+    new Promise((resolve, reject) => {
+        fs.unlink(deletingFilePath, err => {
+            !err ? resolve() : reject();
+        })
+    })
+        .then(() => {
+            stdout.write(`You are currently in ${currentPath}\n\n`);
+        })
+        .catch(() => {
+            stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`)
+        })
+}
 
 startManager()
-
-//─ ┐ │ └ ┘ ┌ 
