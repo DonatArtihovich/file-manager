@@ -29,6 +29,12 @@ function startManager() {
             case 'rn':
                 renameFile(dataArr[1].trim(), dataArr[2].trim());
                 break;
+            case 'cp':
+                copyFile(dataArr[1].trim(), dataArr[2].trim());
+                break;
+            case 'mv':
+                moveFile(dataArr[1].trim(), dataArr[2].trim());
+                break;
             case '.exit':
                 process.exit();
             default: stdout.write('Invalid input\n\n');
@@ -140,6 +146,44 @@ function renameFile(oldPath, newPath) {
             stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`)
         })
 }
+
+function copyFile(firstPath, secondPath) {
+    const filePath = path.resolve(currentPath, firstPath);
+    const copyPath = path.resolve(currentPath, secondPath);
+    new Promise((resolve, reject) => {
+        fs.copyFile(filePath, copyPath, err => {
+            !err ? resolve() : reject()
+        })
+    })
+        .then(() => {
+            stdout.write(`You are currently in ${currentPath}\n\n`);
+        })
+        .catch(() => {
+            stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`)
+        })
+}
+
+function moveFile(oldPath, newPath) {
+    const oldFilePath = path.resolve(currentPath, oldPath);
+    const newFilePath = path.resolve(currentPath, newPath);
+    new Promise((resolve, reject) => {
+        fs.copyFile(oldFilePath, newFilePath, err => {
+            !err ? resolve() : reject()
+        })
+    })
+        .then(() => {
+            fs.unlink(oldFilePath, err => {
+                if (err) stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`);
+            })
+        })
+        .then(() => {
+            stdout.write(`You are currently in ${currentPath}\n\n`);
+        })
+        .catch(() => {
+            stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`)
+        })
+}
+
 
 startManager()
 
