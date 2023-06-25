@@ -26,6 +26,9 @@ function startManager() {
             case 'add':
                 createFile(dataArr[1].trim());
                 break;
+            case 'rn':
+                renameFile(dataArr[1].trim(), dataArr[2].trim());
+                break;
             case '.exit':
                 process.exit();
             default: stdout.write('Invalid input\n\n');
@@ -112,6 +115,22 @@ function createFile(fileName) {
     new Promise((resolve, reject) => {
         fs.writeFile(path.resolve(currentPath, fileName), '', err => {
             !err ? resolve() : reject()
+        })
+    })
+        .then(() => {
+            stdout.write(`You are currently in ${currentPath}\n\n`);
+        })
+        .catch(() => {
+            stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`)
+        })
+}
+
+function renameFile(oldPath, newPath) {
+    const oldFilePath = path.resolve(currentPath, oldPath);
+    const newFilePath = path.resolve(currentPath, newPath);
+    new Promise((resolve, reject) => {
+        fs.rename(oldFilePath, newFilePath, err => {
+            !err ? resolve() : reject();
         })
     })
         .then(() => {
