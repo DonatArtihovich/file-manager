@@ -38,10 +38,12 @@ function startManager() {
             case 'rm':
                 deleteFile(dataArr[1].trim());
                 break;
+            case 'os':
+                getOSInfo(dataArr[1].trim());
+                break;
             case '.exit':
                 process.exit();
             default: stdout.write('Invalid input\n\n');
-                break;
         }
     })
 
@@ -200,6 +202,28 @@ function deleteFile(filePath) {
         .catch(() => {
             stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`)
         })
+}
+
+function getOSInfo(param) {
+    switch (param) {
+        case '--EOL':
+            console.log(os.EOL);
+            break;
+        case '--cpus':
+            console.log(os.cpus());
+            break;
+        case '--homedir':
+            console.log(os.homedir());
+            break;
+        case '--username':
+            console.log(os.userInfo().username);
+            break;
+        case '--architecture':
+            console.log(os.arch());
+            break;
+        default: stdout.write('Invalid input\n\n');
+    }
+    stdout.write(`You are currently in ${currentPath}\n\n`);
 }
 
 startManager()
