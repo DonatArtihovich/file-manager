@@ -23,6 +23,9 @@ function startManager() {
             case 'cat':
                 readFile(dataArr[1].trim());
                 break;
+            case 'add':
+                createFile(dataArr[1].trim());
+                break;
             case '.exit':
                 process.exit();
             default: stdout.write('Invalid input\n\n');
@@ -48,7 +51,7 @@ function changeDirectory(newPath) {
             currentPath = path.resolve(currentPath, newPath);
             stdout.write(`You are currently in ${currentPath}\n\n`)
         })
-        .catch(err => {
+        .catch(() => {
             stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`)
         })
 }
@@ -103,6 +106,20 @@ function readFile(readPath) {
     readableStream.on('data', data => { stdout.write(data) });
     readableStream.on('end', () => { stdout.write(`\n\nYou are currently in ${currentPath}\n\n`) });
     readableStream.on('error', () => { stdout.write('Operation failed\n\n') });
+}
+
+function createFile(fileName) {
+    new Promise((resolve, reject) => {
+        fs.writeFile(path.resolve(currentPath, fileName), '', err => {
+            !err ? resolve() : reject()
+        })
+    })
+        .then(() => {
+            stdout.write(`You are currently in ${currentPath}\n\n`);
+        })
+        .catch(() => {
+            stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`)
+        })
 }
 
 startManager()
