@@ -95,33 +95,42 @@ function printList() {
       stdout.write('Operation failed\n\n');
       return;
     }
+    const promisesArr = files.map((file, i) => {
+      return new Promise(resolve => {
+        let type = 'file';
+        const filePath = path.join(currentPath, file);
+        new Promise(resolve => {
+          fs.stat(filePath, (err, stat) => {
+            resolve(stat.isDirectory() ? 'directory' : 'file')
+          })
+        }).then(res => {
+          type = res;
+          const indexStr = i.toString();
+          const curIndexCell = '│' + indexStr.padStart(Math.floor((13 - indexStr.length) / 2) + indexStr.length, ' ').padEnd(13, ' ');
 
-    files.forEach((fileName, index) => {
-      let type = 'file';
-      const filePath = path.join(currentPath, fileName);
-      new Promise(resolve => {
-        fs.stat(filePath, (err, stat) => {
-          resolve(stat.isDirectory() ? 'directory' : 'file')
+          const curNameCell = '│' + `"${file}"`.padStart(Math.floor((94 - file.length) / 2) + file.length, ' ').padEnd(94, ' ');
+
+          const curTypeCell = '│' + `"${type}"`.padStart(Math.floor((20 - type.length) / 2) + type.length, ' ').padEnd(20, ' ') + '│';
+
+          let curStr = curIndexCell + curNameCell + curTypeCell;
+          curStr += i !== files.length - 1 ? `\n${middleRow}\n` : `\n${lowerRow}\n`;
+          resolve(curStr);
         })
-      }).then(res => {
-        type = res;
-        const indexStr = index.toString();
-        const curIndexCell = '│' + `${index}`.padStart(Math.floor((13 - indexStr.length) / 2) + indexStr.length, ' ').padEnd(13, ' ');
-
-        const curNameCell = '│' + `"${fileName}"`.padStart(Math.floor((94 - fileName.length) / 2) + fileName.length, ' ').padEnd(94, ' ');
-
-        const curTypeCell = '│' + `"${type}"`.padStart(Math.floor((20 - type.length) / 2) + type.length, ' ').padEnd(20, ' ') + '│';
-
-        let curStr = curIndexCell + curNameCell + curTypeCell;
-        curStr += index !== files.length - 1 ? `\n${middleRow}\n` : `\n${lowerRow}\n`;
-        outStr += curStr;
-      }).then(() => {
-        if (index === files.length - 1) {
-          stdout.write(outStr);
-          stdout.write(`You are currently in ${currentPath}\n\n`);
-        }
       })
     })
+    Promise.allSettled(promisesArr).then(res => {
+      res.forEach(promise => {
+        outStr += promise.value;
+      })
+    }).then(() => {
+      stdout.write(outStr);
+    })
+      .then(() => {
+        stdout.write(`You are currently in ${currentPath}\n\n`);
+      })
+      .catch(() => {
+        stdout.write(`Operation failed!\nYou are currently in ${currentPath}\n\n`)
+      })
   })
 }
 
